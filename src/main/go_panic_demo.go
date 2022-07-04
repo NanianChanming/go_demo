@@ -1,7 +1,10 @@
 package main
 
-func main() {
+import "fmt"
 
+func main() {
+	firstName := "yun chang"
+	fullName(&firstName, nil)
 }
 
 /*
@@ -20,3 +23,14 @@ panic两个合理的用例
 	假如我们有一个接收指针参数的方法，而其他人使用了nil作为参数调用了它。在这种情况下，可以使用panic，
 	因为这是一个编程错误：用nil参数调用了一个只能接收合法指针的方法
 */
+// 示例
+func fullName(firstName *string, lastName *string) {
+	if firstName == nil {
+		panic("runtime error: first name cannot be nil")
+	}
+	if lastName == nil {
+		panic("runtime error: last name cannot be nil")
+	}
+	fmt.Printf("%s %s \n", firstName, lastName)
+	fmt.Println("returned normally from fullName")
+}
