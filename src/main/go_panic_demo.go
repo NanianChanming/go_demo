@@ -25,6 +25,7 @@ panic两个合理的用例
 */
 // 示例
 func fullName(firstName *string, lastName *string) {
+
 	if firstName == nil {
 		panic("runtime error: first name cannot be nil")
 	}
