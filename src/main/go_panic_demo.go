@@ -3,8 +3,11 @@ package main
 import "fmt"
 
 func main() {
+	// 假如defer语句
+	defer fmt.Println("deferred call in main")
 	firstName := "yun chang"
 	fullName(&firstName, nil)
+	fmt.Println("returned normally from main")
 }
 
 /*
@@ -24,7 +27,11 @@ panic两个合理的用例
 	因为这是一个编程错误：用nil参数调用了一个只能接收合法指针的方法
 */
 // 示例
+//下列代码在发生panic时，首先执行了延迟函数，接着控制返回到函数调用方，
+//调用方法的延迟函数继续执行，直到到达定成调用函数
 func fullName(firstName *string, lastName *string) {
+	// 修改当前代码，使用一个延迟语句
+	defer fmt.Println("deferred call in fullName")
 	if firstName == nil {
 		panic("runtime error: first name cannot be nil")
 	}
