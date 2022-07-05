@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 func main() {
-	// 假如defer语句
+	// 加入defer语句
 	defer fmt.Println("deferred call in main")
 	firstName := "yun chang"
 	fullName(&firstName, nil)
