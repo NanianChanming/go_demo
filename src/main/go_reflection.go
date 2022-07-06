@@ -5,6 +5,12 @@ import (
 	"reflect"
 )
 
+/*
+代码中应该使用反射吗
+引用Rob Pike关于反射使用的格言： 清晰优于聪明，而反射并不是一目了然的
+反射是go语言中非常强大和高级的概念，应该小心谨慎的使用它。
+使用反射编写清晰和可维护的代码是很困难的，应该尽量避免使用。
+*/
 func main() {
 	//s := createSqlQuery(getOrder())
 	//fmt.Println(s)
