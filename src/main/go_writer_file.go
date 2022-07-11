@@ -2,14 +2,17 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
+	"sync"
 )
 
 func main() {
 	//writeStr()
 	//writeBytes()
 	//writeStrRow()
-	appendStrRow()
+	//appendStrRow()
+	writeWithChannel()
 }
 
 // 将字符串写入文件
@@ -97,4 +100,71 @@ func appendStrRow() {
 		return
 	}
 	fmt.Println("file append success")
+}
+
+// 并发写文件
+// 当多个goroutines同时并发写文件时，我们会遇到竞争条件，因此，当发生同步写的时候，需要一个channel作为一致写入的条件
+/**
+写一个方法创建100个goroutines，每个goroutine将并发产生一个随机数，这些随机数将被写入到文件里面
+1.创建一个channel用来读和写这个随机数
+2.创建100个生产者goroutine，每个goroutine都产生一个随机数并写入到channel里
+3.创建一个消费者goroutine用来从channel读取随机数并写入文件，这样的话，就只有一个goroutine向文件中写数据，从而避免竞争条件
+4.完成之后关闭文件
+*/
+// 产生随机数的方法
+func produce(data chan int, wg *sync.WaitGroup) {
+	// 产生一个999以内的随机数
+	n := rand.Intn(999)
+	// 写入到管道
+	data <- n
+	wg.Done()
+}
+
+// 写文件的函数
+// 这个consume方法创建了一个名为test_write_channel.txt的文件，然后从channel中读取随机数并写到文件中，
+// 一旦读取完成并且将随机数写入文件后，通过done这个channel中写入true来通知任务已经完成
+func consume(data chan int, done chan bool) {
+	f, err := os.Create("D:/GoProjects/hello_go/src/resource/test_write_channel.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for d := range data {
+		_, err := fmt.Fprintln(f, d)
+		if err != nil {
+			fmt.Println(err)
+			f.Close()
+			done <- false
+			return
+		}
+	}
+	err = f.Close()
+	if err != nil {
+		fmt.Println(err)
+		done <- false
+		return
+	}
+	done <- true
+}
+
+// 提供完成程序，并发写入文件
+func writeWithChannel() {
+	data := make(chan int)
+	done := make(chan bool)
+	wg := sync.WaitGroup{}
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go produce(data, &wg)
+	}
+	go consume(data, done)
+	go func() {
+		wg.Wait()
+		close(data)
+	}()
+	d := <-done
+	if d {
+		fmt.Println("file written success")
+	} else {
+		fmt.Println("file written failed")
+	}
 }
